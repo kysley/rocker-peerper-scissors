@@ -10,6 +10,8 @@
   let otherPlayerChoice: "rock" | "paper" | "scissors";
   let submitted = false;
 
+  $: winState = determineWinner(choice, otherPlayerChoice);
+
   peer.on("open", (id) => {
     displayid = id;
   });
@@ -41,7 +43,7 @@
   <a target="_blank" href="/{displayid}" rel="noreferrer">link: {displayid}</a>
 
   {#if connection}
-    <span>playing: {choice}</span>
+    <span>choice: {choice}</span>
 
     <button on:click={handleSubmitChoice} disabled={submitted || !choice}
       >{submitted ? "waiting for other player" : "submit"}</button
@@ -55,7 +57,15 @@
     <p>you: {choice}</p>
     {#if otherPlayerChoice}
       <p>them: {otherPlayerChoice}</p>
-      {determineWinner(choice, otherPlayerChoice) ?? "tie"}
+      <span>
+        {#if winState === "tie"}
+          tie
+        {:else if winState === "a"}
+          you won
+        {:else}
+          you lost
+        {/if}
+      </span>
     {/if}
   {/if}
 {:else}

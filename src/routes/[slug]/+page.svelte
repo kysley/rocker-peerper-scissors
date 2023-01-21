@@ -2,6 +2,7 @@
   import { page } from "$app/stores";
   import Peer, { type DataConnection } from "peerjs";
   import RpsSelect from "../../components/rps-select.svelte";
+  import { determineWinner } from "../../utils";
 
   const peer = new Peer();
 
@@ -11,6 +12,8 @@
   let choice: "rock" | "paper" | "scissors";
   let otherPlayerChoice: "rock" | "paper" | "scissors";
   let submitted = false;
+
+  $: winState = determineWinner(choice, otherPlayerChoice);
 
   peer.on("open", (id) => {
     displayid = id;
@@ -42,7 +45,7 @@
   <h1>connected</h1>
 
   <span>host: {$page.params.slug}</span>
-  <span>playing: {choice}</span>
+  <span>choice: {choice}</span>
 
   <button on:click={handleSubmitChoice} disabled={submitted}
     >{submitted ? "waiting for other player" : "submit"}</button
@@ -54,6 +57,15 @@
     <p>you: {choice}</p>
     {#if otherPlayerChoice}
       <p>them: {otherPlayerChoice}</p>
+      <span>
+        {#if winState === "tie"}
+          tie
+        {:else if winState === "a"}
+          you won
+        {:else}
+          you lost
+        {/if}
+      </span>
     {/if}
   {/if}
 {:else}
