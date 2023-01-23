@@ -5,10 +5,10 @@ const weight = {
 };
 
 export function determineWinner(
-  a: "rock" | "paper" | "scissors",
-  b: "rock" | "paper" | "scissors"
+  a?: "rock" | "paper" | "scissors",
+  b?: "rock" | "paper" | "scissors"
 ) {
-  if (!a || !b) {
+  if (!(a && b)) {
     return undefined;
   } else if (a === b) {
     return "tie";

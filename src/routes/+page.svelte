@@ -1,73 +1,103 @@
 <script lang="ts">
   import Peer, { type DataConnection } from "peerjs";
   import RpsSelect from "../components/rps-select.svelte";
+  import Spinner from "../components/spinner.svelte";
+  import VersusScreen from "../components/versus-screen.svelte";
   import { determineWinner } from "../utils";
 
   const peer = new Peer();
-  let connection: DataConnection | undefined;
-  let displayid = "disconnected";
-  let choice: "rock" | "paper" | "scissors";
-  let otherPlayerChoice: "rock" | "paper" | "scissors";
-  let submitted = false;
+  let config: { mode: "bo1" | "bo3" | "bo5" } = { mode: "bo1" };
+  let state: {
+    id: string;
+    connection?: DataConnection;
+    choice?: "rock" | "paper" | "scissors";
+    submitted: boolean;
+  } = { id: "", submitted: false };
+  let opponentChoice: "rock" | "paper" | "scissors";
 
-  $: winState = determineWinner(choice, otherPlayerChoice);
+  $: choice = state.choice;
+
+  $: winState = determineWinner(state.choice, opponentChoice);
 
   peer.on("open", (id) => {
-    displayid = id;
+    state.id = id;
   });
 
   peer.on("connection", handleConnection);
 
   function handleConnection(conn: DataConnection) {
-    connection = conn;
+    state.connection = conn;
     conn.on("open", () => console.log("peer has connected"));
     conn.on("data", (data: any) => {
       if (data.choice) {
-        otherPlayerChoice = data.choice;
+        opponentChoice = data.choice;
       }
     });
   }
 
   function choiceChangeCallback(event) {
-    choice = event.detail;
+    state.choice = event.detail;
   }
 
   function handleSubmitChoice() {
-    connection?.send({ choice });
-    submitted = true;
+    state.connection?.send({ choice: state.choice });
+    state.submitted = true;
+  }
+
+  function copyGameLink() {
+    navigator.clipboard.writeText(`${window.location.href}${state.id}`);
   }
 </script>
 
-{#if displayid !== "disconnected"}
-  <h1>connected</h1>
-  <a target="_blank" href="/{displayid}" rel="noreferrer">link: {displayid}</a>
-
-  {#if connection}
-    <span>choice: {choice}</span>
-
-    <button on:click={handleSubmitChoice} disabled={submitted || !choice}
-      >{submitted ? "waiting for other player" : "submit"}</button
-    >
-    <RpsSelect bind:choice on:change={choiceChangeCallback} />
-  {:else}
-    <span>waiting for player...</span>
-  {/if}
-
-  {#if submitted}
-    <p>you: {choice}</p>
-    {#if otherPlayerChoice}
-      <p>them: {otherPlayerChoice}</p>
-      <span>
-        {#if winState === "tie"}
-          tie
-        {:else if winState === "a"}
-          you won
-        {:else}
-          you lost
-        {/if}
-      </span>
+<div class="container">
+  {#if state.id !== "disconnected"}
+    {#if !state.connection}
+      <button class="button" on:click={copyGameLink}>Copy invite link</button>
     {/if}
+
+    {#if state.connection}
+      {#if !opponentChoice}
+        <span>waiting for other player... <Spinner /></span>
+      {/if}
+      {#if !state.submitted}
+        <RpsSelect
+          bind:choice
+          on:change={choiceChangeCallback}
+          disabled={state.submitted}
+        />
+        <button
+          class="button"
+          on:click={handleSubmitChoice}
+          disabled={state.submitted || !state.choice}
+          >{state.submitted ? "other player choosing" : "confirm"}</button
+        >
+      {/if}
+    {/if}
+
+    {#if state.submitted && state.choice}
+      <VersusScreen playerChoice={state.choice} {opponentChoice} />
+    {/if}
+  {:else}
+    <p>connecting...</p>
   {/if}
-{:else}
-  <h1>connecting</h1>
-{/if}
+</div>
+
+<style>
+  .container {
+    display: flex;
+    gap: 25px;
+    flex-direction: column;
+    font-family: monospace;
+    margin: 25px 0;
+  }
+
+  .button {
+    width: 100%;
+    background-color: gray;
+    border-width: 3px;
+    padding: 6px;
+    font-family: monospace;
+    cursor: pointer;
+    font-weight: bold;
+  }
+</style>
