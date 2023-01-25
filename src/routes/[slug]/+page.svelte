@@ -14,15 +14,9 @@
     submitted: boolean;
     connected: boolean;
   } = { id: "", submitted: false, connected: false };
-  // let connection: DataConnection | undefined;
-  // let displayid = "disconnected";
-  // let connected = false;
-  // let choice: "rock" | "paper" | "scissors";
   let opponentChoice: "rock" | "paper" | "scissors";
-  // let submitted = false;
 
   $: choice = state.choice;
-  $: winState = determineWinner(state.choice, opponentChoice);
 
   peer.on("open", (id) => {
     state.id = id;
@@ -76,37 +70,6 @@
   {:else}
     <p>connecting...</p>
   {/if}
-
-  <!-- {#if state.connected}
-    <h1>connected</h1>
-
-    <span>host: {$page.params.slug}</span>
-    <span>choice: {state.choice}</span>
-
-    <button on:click={handleSubmitChoice} disabled={state.submitted}
-      >{state.submitted ? "waiting for other player" : "submit"}</button
-    >
-
-    <RpsSelect bind:choice on:change={choiceChangeCallback} />
-
-    {#if submitted}
-      <p>you: {choice}</p>
-      {#if otherPlayerChoice}
-        <p>them: {otherPlayerChoice}</p>
-        <span>
-          {#if winState === "tie"}
-            tie
-          {:else if winState === "a"}
-            you won
-          {:else}
-            you lost
-          {/if}
-        </span>
-      {/if}
-    {/if}
-  {:else} -->
-  <!-- <h1>connecting</h1>
-  {/if} -->
 </div>
 
 <style>
@@ -115,7 +78,6 @@
     gap: 25px;
     flex-direction: column;
     font-family: monospace;
-    margin: 25px 0;
     /* align-items: flex-start; */
   }
   .button {

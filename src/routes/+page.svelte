@@ -1,9 +1,7 @@
 <script lang="ts">
   import Peer, { type DataConnection } from "peerjs";
   import RpsSelect from "../components/rps-select.svelte";
-  import Spinner from "../components/spinner.svelte";
   import VersusScreen from "../components/versus-screen.svelte";
-  import { determineWinner } from "../utils";
 
   const peer = new Peer();
   let config: { mode: "bo1" | "bo3" | "bo5" } = { mode: "bo1" };
@@ -16,8 +14,6 @@
   let opponentChoice: "rock" | "paper" | "scissors";
 
   $: choice = state.choice;
-
-  $: winState = determineWinner(state.choice, opponentChoice);
 
   peer.on("open", (id) => {
     state.id = id;
@@ -87,8 +83,6 @@
     gap: 25px;
     flex-direction: column;
     font-family: monospace;
-    margin: 25px 0;
-    /* align-items: flex-start; */
   }
 
   .button {
