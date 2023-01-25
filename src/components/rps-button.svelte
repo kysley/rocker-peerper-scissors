@@ -21,12 +21,13 @@
 
 <style>
   button {
-    background-color: transparent;
     border: none;
     outline: none;
     cursor: pointer;
     min-width: 160px;
     min-height: 160px;
+    transition: transform 0.05s ease-in;
+    align-self: flex-start;
   }
 
   button:hover img {
@@ -34,10 +35,11 @@
   }
 
   button.selected {
-    transform: translateY(-5px);
-    outline: 3px groove gold;
+    transform: translateY(-18px);
+    border: none;
+    outline: 6px groove gold;
     padding: 5px;
-    background-color: rgb(155, 41, 85);
+    /* background-color: rgb(102, 142, 189); */
   }
 
   button.selected:hover img {

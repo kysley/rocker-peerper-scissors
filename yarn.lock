@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"98.css@^0.1.18":
+  version "0.1.18"
+  resolved "https://registry.yarnpkg.com/98.css/-/98.css-0.1.18.tgz#8c5514edfdccb32ef9e5b10904036ba674c21df7"
+  integrity sha512-I6l22DVVGAeets2KzpWhnbj3vCmP5HrkkZFnN8MhFF0z5yoXLkMM7p5vKCN9ap+Tnb4bFe4kukcMsinpDcnfhQ==
+
 "@esbuild/android-arm64@0.16.17":
   version "0.16.17"
   resolved "https://registry.yarnpkg.com/@esbuild/android-arm64/-/android-arm64-0.16.17.tgz#cf91e86df127aa3d141744edafcba0abdc577d23"

@@ -1,3 +1,7 @@
+<script lang="ts">
+  import "98.css";
+</script>
+
 <div class="wrapper">
   <div class="container">
     <header>
@@ -12,6 +16,9 @@
 </div>
 
 <style>
+  main {
+    width: 100%;
+  }
   * {
     font-family: Arial, Helvetica, sans-serif;
   }
@@ -23,11 +30,12 @@
   }
 
   .container {
-    min-width: 33vw;
+    width: 50vw;
     height: 100vh;
     display: flex;
     gap: 25px;
     flex-direction: column;
+    /* align-items: flex-start; */
   }
 
   header {

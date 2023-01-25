@@ -36,8 +36,8 @@
 
 <style>
   section {
-    display: flex;
+    display: grid;
     gap: 5em;
-    justify-content: baseline;
+    grid-template-columns: 1fr 1fr 1fr;
   }
 </style>

@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { determineWinner } from "../utils";
   import RpsButton from "./rps-button.svelte";
+  import Spinner from "./spinner.svelte";
 
   export let playerChoice: "rock" | "paper" | "scissors";
   export let opponentChoice: "rock" | "paper" | "scissors";
@@ -21,7 +22,7 @@
 </script>
 
 <div class="container">
-  <RpsButton choice={playerChoice} alt selected />
+  <RpsButton choice={playerChoice} alt selected disabled />
 
   {#if winState}
     {#if winState === "a"}
@@ -35,9 +36,14 @@
 
   <div class="opponent-container">
     {#if !opponentChoice}
-      <span class="randomized">waiting for opponent</span>
+      <span class="randomized">waiting for opponent <Spinner /></span>
     {/if}
-    <RpsButton choice={opponentChoice || placeholderChoice} alt flipped />
+    <RpsButton
+      choice={opponentChoice || placeholderChoice}
+      alt
+      flipped
+      disabled
+    />
   </div>
 </div>
 
@@ -46,10 +52,12 @@
     display: grid;
     /* grid-template-columns: auto auto; */
     gap: 25px;
+    /* width: 100%; */
   }
 
   .opponent-container {
     position: relative;
+    display: grid;
   }
 
   .randomized {
@@ -60,6 +68,6 @@
     z-index: 1;
     color: white;
     text-align: center;
-    top: 24px;
+    bottom: 8px;
   }
 </style>

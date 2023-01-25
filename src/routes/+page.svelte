@@ -56,9 +56,6 @@
     {/if}
 
     {#if state.connection}
-      {#if !opponentChoice}
-        <span>waiting for other player... <Spinner /></span>
-      {/if}
       {#if !state.submitted}
         <RpsSelect
           bind:choice
@@ -69,7 +66,9 @@
           class="button"
           on:click={handleSubmitChoice}
           disabled={state.submitted || !state.choice}
-          >{state.submitted ? "other player choosing" : "confirm"}</button
+          >{state.submitted
+            ? "other player choosing"
+            : "confirm choice"}</button
         >
       {/if}
     {/if}
@@ -89,15 +88,10 @@
     flex-direction: column;
     font-family: monospace;
     margin: 25px 0;
+    /* align-items: flex-start; */
   }
 
   .button {
-    width: 100%;
-    background-color: gray;
-    border-width: 3px;
-    padding: 6px;
-    font-family: monospace;
-    cursor: pointer;
-    font-weight: bold;
+    align-self: flex-start;
   }
 </style>
