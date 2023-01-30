@@ -1,9 +1,9 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import Peer, { type DataConnection } from "peerjs";
+  import RpsPostGame from "../../components/rps-post-game.svelte";
   import RpsSelect from "../../components/rps-select.svelte";
   import VersusScreen from "../../components/versus-screen.svelte";
-  import { determineWinner } from "../../utils";
 
   const peer = new Peer();
 
@@ -13,10 +13,20 @@
     choice?: "rock" | "paper" | "scissors";
     submitted: boolean;
     connected: boolean;
-  } = { id: "", submitted: false, connected: false };
+    rematch: boolean;
+  } = { id: "", submitted: false, connected: false, rematch: false };
   let opponentChoice: "rock" | "paper" | "scissors";
+  let opponentRematch = false;
 
   $: choice = state.choice;
+
+  $: if (state.rematch && opponentRematch) {
+    state.submitted = false;
+    state.rematch = false;
+    state.choice = undefined;
+    opponentRematch = false;
+    opponentChoice = undefined;
+  }
 
   peer.on("open", (id) => {
     state.id = id;
@@ -30,6 +40,9 @@
     conn.on("data", (data) => {
       if (data.choice) {
         opponentChoice = data.choice;
+      }
+      if (data.rematch) {
+        opponentRematch = data.rematch;
       }
     });
   });
@@ -66,6 +79,16 @@
 
     {#if state.submitted && state.choice}
       <VersusScreen playerChoice={state.choice} {opponentChoice} />
+      {#if opponentChoice}
+        <RpsPostGame
+          connection={state.connection}
+          opponentReady={opponentRematch}
+          on:rematch={(event) => {
+            state.rematch = event.detail;
+            // state.connection?.send({})
+          }}
+        />
+      {/if}
     {/if}
   {:else}
     <p>connecting...</p>

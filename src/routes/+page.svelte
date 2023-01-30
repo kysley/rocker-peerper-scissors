@@ -1,5 +1,6 @@
 <script lang="ts">
   import Peer, { type DataConnection } from "peerjs";
+  import RpsPostGame from "../components/rps-post-game.svelte";
   import RpsSelect from "../components/rps-select.svelte";
   import VersusScreen from "../components/versus-screen.svelte";
 
@@ -10,10 +11,20 @@
     connection?: DataConnection;
     choice?: "rock" | "paper" | "scissors";
     submitted: boolean;
-  } = { id: "", submitted: false };
+    rematch: boolean;
+  } = { id: "", submitted: false, rematch: false };
   let opponentChoice: "rock" | "paper" | "scissors";
+  let opponentRematch = false;
 
   $: choice = state.choice;
+
+  $: if (state.rematch && opponentRematch) {
+    state.submitted = false;
+    state.rematch = false;
+    state.choice = undefined;
+    opponentRematch = false;
+    opponentChoice = undefined;
+  }
 
   peer.on("open", (id) => {
     state.id = id;
@@ -27,6 +38,10 @@
     conn.on("data", (data: any) => {
       if (data.choice) {
         opponentChoice = data.choice;
+      }
+      if (data.rematch) {
+        console.log("opponent ready");
+        opponentRematch = data.rematch;
       }
     });
   }
@@ -47,8 +62,14 @@
 
 <div class="container">
   {#if state.id !== "disconnected"}
-    {#if !state.connection}
+    {#if !state.connection && state.id !== ""}
       <button class="button" on:click={copyGameLink}>Copy invite link</button>
+      <button
+        class="button"
+        on:click={() => {
+          state.connection = "asd";
+        }}>Simulate opponent</button
+      >
     {/if}
 
     {#if state.connection}
@@ -66,11 +87,26 @@
             ? "other player choosing"
             : "confirm choice"}</button
         >
+        <button
+          on:click={() => {
+            state.submitted = true;
+            setTimeout(() => {
+              opponentChoice = "paper";
+            }, 2500);
+          }}>simulate</button
+        >
       {/if}
-    {/if}
 
-    {#if state.submitted && state.choice}
-      <VersusScreen playerChoice={state.choice} {opponentChoice} />
+      {#if state.submitted && state.choice}
+        <VersusScreen playerChoice={state.choice} {opponentChoice} />
+        {#if opponentChoice}
+          <RpsPostGame
+            connection={state.connection}
+            opponentReady={opponentRematch}
+            on:rematch={(event) => (state.rematch = event.detail)}
+          />
+        {/if}
+      {/if}
     {/if}
   {:else}
     <p>connecting...</p>

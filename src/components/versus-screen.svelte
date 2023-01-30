@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { fade, fly } from "svelte/transition";
   import { determineWinner } from "../utils";
-  import RpsButton from "./rps-button.svelte";
+  import RpsDisplay from "./rps-display.svelte";
   import Spinner from "./spinner.svelte";
 
   export let playerChoice: "rock" | "paper" | "scissors";
@@ -10,8 +11,15 @@
   let interval: NodeJS.Timer;
   let choices = ["rock", "paper", "scissors"];
   let placeholderChoice: string;
+  let state = "waiting";
 
   $: winState = determineWinner(playerChoice, opponentChoice);
+
+  $: if (playerChoice && opponentChoice) {
+    setTimeout(() => {
+      state = "results";
+    }, 800);
+  }
 
   onMount(() => {
     placeholderChoice = choices[Math.floor(Math.random() * choices.length)];
@@ -21,38 +29,57 @@
   });
 </script>
 
-<div class="container">
-  <RpsButton choice={playerChoice} alt selected disabled />
-
-  {#if winState}
-    {#if winState === "a"}
-      <span>you win</span>
-    {:else if winState === "b"}
-      <span>you lose</span>
-    {:else}
-      <span>tie</span>
-    {/if}
-  {/if}
-
-  <div class="opponent-container">
-    {#if !opponentChoice}
-      <span class="randomized">waiting for opponent <Spinner /></span>
-    {/if}
-    <RpsButton
-      choice={opponentChoice || placeholderChoice}
-      alt
-      flipped
-      disabled
-    />
+{#if state === "waiting"}
+  <div class="container">
+    <div
+      in:fly={{ y: -100, duration: 600 }}
+      style="position: relative;"
+      class:beat={winState === "b"}
+    >
+      <RpsDisplay choice={playerChoice} highlighted />
+    </div>
+    <div
+      in:fly={{ y: 100, duration: 600 }}
+      style="position: relative;"
+      class:beat={winState === "a"}
+    >
+      {#if !opponentChoice}
+        <span class="randomized">waiting for opponent <Spinner /></span>
+      {/if}
+      <RpsDisplay choice={opponentChoice || placeholderChoice} alt flipped />
+    </div>
   </div>
-</div>
+{:else}
+  <div class="container">
+    <div
+      out:fade={{ duration: 600, delay: 600 }}
+      style="position: relative;"
+      class:beat={winState === "b"}
+    >
+      {#if winState === "a"}
+        <span class="randomized">You win!</span>
+      {:else if winState === "tie"}
+        <span class="randomized">Tie.</span>
+      {/if}
+      <RpsDisplay choice={playerChoice} highlighted />
+    </div>
+
+    <div class="opponent-container" class:beat={winState === "a"}>
+      <div style="position:relative;">
+        <RpsDisplay choice={opponentChoice} alt flipped />
+      </div>
+      {#if winState === "b"}
+        <span class="randomized">They win!</span>
+      {:else if winState === "tie"}
+        <span class="randomized">Tie.</span>
+      {/if}
+    </div>
+  </div>{/if}
 
 <style>
   .container {
     display: grid;
-    /* grid-template-columns: auto auto; */
     gap: 25px;
-    /* width: 100%; */
   }
 
   .opponent-container {
@@ -69,5 +96,11 @@
     color: white;
     text-align: center;
     bottom: 8px;
+  }
+
+  .beat {
+    opacity: 0.25;
+    transition: all 0.2s ease-in;
+    transition-delay: 500ms;
   }
 </style>
